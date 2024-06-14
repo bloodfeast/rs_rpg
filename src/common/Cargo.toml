@@ -1,0 +1,18 @@
+[package]
+name = "common"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+crossbeam = "0.8.4"
+env_logger = "0.11.3"
+log = "0.4.21"
+tokio = { version = "1.38.0", features = ["full"] }
+wgpu = "0.20.0"
+winit = "0.30.1"
+image = "0.25.1"
+pollster = "0.3.0"
+imageproc = "0.25.0"
