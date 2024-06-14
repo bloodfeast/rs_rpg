@@ -1,0 +1,9 @@
+[package]
+name = "rpg_scratch"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.86"
+common = {name = "common", path = "src/common"}
+thiserror = "1.0.61"
