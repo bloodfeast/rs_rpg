@@ -1,3 +1,4 @@
+use std::sync::{Arc, Mutex};
 use crate::actors::models::{ComputedAttributeEnum, ComputedAttributes, ComputedAttributeValues, StatBlock, StatsEnum, StatValues};
 
 #[derive(Debug, Copy, Clone)]
@@ -51,10 +52,10 @@ impl PlayerStats {
 
     fn set_passive_base_stat_increase(&mut self) {
         match &self.level {
-            (level) if level % 2 == 0 => {
+            level if level % 2 == 0 => {
                 self.base_stats.set_stat(StatsEnum::Wisdom, self.base_stats.get_stat(StatsEnum::Wisdom) + 1);
             },
-            (level) if level % 3 == 0 => {
+            level if level % 3 == 0 => {
                 self.base_stats.set_stat(StatsEnum::Constitution, self.base_stats.get_stat(StatsEnum::Strength) + 1);
             },
             _ => {}
@@ -68,5 +69,17 @@ impl PlayerStats {
         self.set_passive_base_stat_increase();
 
         self.computed_attributes = ComputedAttributes::new(self.base_stats);
+    }
+
+    pub fn get_level(&self) -> u32 {
+        self.level
+    }
+
+    pub fn get_mut_computed_attributes(&mut self) -> &mut ComputedAttributes {
+        &mut self.computed_attributes
+    }
+
+    pub fn get_stats(&self) -> (u32, Arc<Mutex<StatBlock>>, Arc<Mutex<ComputedAttributes>>) {
+        (self.level, Arc::new(Mutex::new(self.base_stats)), Arc::new(Mutex::new(self.computed_attributes)))
     }
 }
