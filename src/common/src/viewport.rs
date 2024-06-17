@@ -1,8 +1,9 @@
 use std::sync::Arc;
 use winit::window::Window;
-use wgpu::Features;
+use wgpu::{Adapter, Features};
 use crate::dbl_buffer;
 
+#[derive(Debug)]
 pub struct ViewportDesc {
     window: Arc<Window>,
     surface: wgpu::Surface<'static>,
@@ -10,6 +11,7 @@ pub struct ViewportDesc {
     queue: wgpu::Queue,
     size: winit::dpi::PhysicalSize<u32>,
     frame_buffer: dbl_buffer::DoubleBuffer<wgpu::TextureView>,
+    adapter: Adapter,
 }
 
 pub struct Viewport {
@@ -64,14 +66,15 @@ impl ViewportDesc {
             queue,
             size,
             frame_buffer,
+            adapter
         }
     }
 
-    pub fn build(self, adapter: &wgpu::Adapter, device: &wgpu::Device) -> Viewport {
+    pub fn build(self, device: &wgpu::Device) -> Viewport {
         let size = self.window.inner_size();
         let config = self
             .surface
-            .get_default_config(adapter, size.width, size.height)
+            .get_default_config(&self.adapter, size.width, size.height)
             .unwrap();
         self.surface.configure(device, &config);
         Viewport { desc: self, config }
@@ -79,11 +82,13 @@ impl ViewportDesc {
 }
 
 impl Viewport {
+
     pub fn resize(&mut self, device: &wgpu::Device, size: winit::dpi::PhysicalSize<u32>) {
         self.config.width = size.width;
         self.config.height = size.height;
         self.desc.surface.configure(device, &self.config);
     }
+
     pub fn get_current_texture(&mut self) -> wgpu::SurfaceTexture {
         self.desc
             .surface

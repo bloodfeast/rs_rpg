@@ -1,7 +1,8 @@
 
 use wgpu::{Device, Queue, Texture, TextureView, TextureDescriptor, TextureFormat, TextureUsages, Extent3d, TextureDimension};
-use image::{DynamicImage, GenericImageView, ImageBuffer, imageops, Rgba};
+use image::{DynamicImage, GenericImage, GenericImageView, ImageBuffer, imageops, Pixel, Primitive, Rgba};
 use std::collections::HashMap;
+use std::path::Path;
 use imageproc::filter::gaussian_blur_f32;
 
 pub struct TextureManager {
@@ -61,9 +62,16 @@ impl TextureManager {
 
         self.textures.insert(id.to_string(), TextureResource { texture, view });
     }
+    pub fn check_for_texture(&self, id: &str) -> bool {
+        self.textures.contains_key(id)
+    }
 
     pub fn get_texture_view(&self, id: &str) -> Option<&TextureView> {
         self.textures.get(id).map(|res| &res.view)
+    }
+
+    pub fn get_texture(&self, id: &str) -> Option<&Texture> {
+        self.textures.get(id).map(|res| &res.texture)
     }
 
     pub fn update_texture(&mut self, id: &str, path: &str) {
@@ -118,7 +126,7 @@ impl TextureManager {
 ///
 /// ```
 ///
-/// use common::texture_manager::create_texture_image;
+/// use common::texture_manager::create_texture_tile;
 /// let width = 2;
 /// let height = 2;
 /// let data = [
@@ -127,9 +135,9 @@ impl TextureManager {
 ///     [0, 0, 255, 255],
 ///     [255, 255, 0, 255],
 /// ];
-/// let image = create_texture_image(width, height, data);
+/// let image = create_texture_tile(width, height, data);
 /// ```
-pub fn create_texture_image(width: u32, height: u32, data: [[u8; 4]; 4]) -> DynamicImage {
+pub fn create_texture_tile(width: u32, height: u32, data: [[u8; 4]; 4]) -> DynamicImage {
     let data = data.map(|x| Rgba(x)).to_vec();
     let img = ImageBuffer::from_fn(
         width,
@@ -159,6 +167,77 @@ pub fn create_texture_image(width: u32, height: u32, data: [[u8; 4]; 4]) -> Dyna
 
     img
 }
+/// Concatenate horizontally images with the same pixel type.
+fn h_concat<I, P, S>(images: &[I]) -> ImageBuffer<P, Vec<S>>
+    where
+        I: GenericImageView<Pixel = P>,
+        P: Pixel<Subpixel = S> + 'static,
+        S: Primitive + 'static,
+{
+    // The final width is the sum of all images width.
+    let img_width_out: u32 = images.iter().map(|im| im.width()).sum();
+
+    // The final height is the maximum height from the input images.
+    let img_height_out: u32 = images.iter().map(|im| im.height()).max().unwrap_or(0);
+
+    // Initialize an image buffer with the appropriate size.
+    let mut imgbuf = image::ImageBuffer::new(img_width_out, img_height_out);
+    let mut accumulated_width = 0;
+
+    // Copy each input image at the correct location in the output image.
+    for img in images {
+        imgbuf.copy_from(img, accumulated_width, 0).unwrap();
+        accumulated_width += img.width();
+    }
+
+    imgbuf
+}
+
+/// Concatenate vertically images with the same pixel type.
+/// The images must have the same width.
+fn v_concat<I, P, S>(images: &[I]) -> ImageBuffer<P, Vec<S>>
+    where
+        I: GenericImageView<Pixel = P>,
+        P: Pixel<Subpixel = S> + 'static,
+        S: Primitive + 'static,
+{
+    // The final width is the width of the first image.
+    let img_width_out = images.first().map(|im| im.width()).unwrap_or(0);
+
+    // The final height is the sum of all images height.
+    let img_height_out: u32 = images.iter().map(|im| im.height()).sum();
+
+    // Initialize an image buffer with the appropriate size.
+    let mut imgbuf = image::ImageBuffer::new(img_width_out, img_height_out);
+    let mut accumulated_height = 0;
+
+    // Copy each input image at the correct location in the output image.
+    for img in images {
+        imgbuf.copy_from(img, 0, accumulated_height).unwrap();
+        accumulated_height += img.height();
+    }
+
+    imgbuf
+}
+
+/// Concatenate images horizontally
+pub fn concat_image_tiles(images: &[&Path]) -> DynamicImage {
+    let images: Vec<DynamicImage> = images
+        .iter()
+        .map(|path|
+            image::open(path)
+                .expect("Failed to open image")
+        )
+        .collect();
+
+    DynamicImage::ImageRgba8( h_concat(images.as_slice()) )
+}
+
+/// Concatenate image rows vertically
+pub fn concat_image_rows(images: Vec<DynamicImage>) -> DynamicImage {
+    DynamicImage::ImageRgba8( v_concat(images.as_slice()) )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -197,7 +276,7 @@ mod tests {
             [0, 0, 0, 255],
             [180, 180, 180, 250],
         ];
-        create_texture_image(width, height, data)
+        create_texture_tile(width, height, data)
     }
 
     #[test]

@@ -1,8 +1,10 @@
 mod textures;
+mod actors;
 
 use common::dbl_buffer::DoubleBuffer;
 
 fn main() {
+
     let mut double_buffer = DoubleBuffer::new(1024);
 
     // Simulate writing to the inactive buffer
