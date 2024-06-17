@@ -279,6 +279,10 @@ mod tests {
         create_texture_tile(width, height, data)
     }
 
+    fn remove_mock_image(path: &str) {
+        std::fs::remove_file(path).unwrap();
+    }
+
     #[test]
     fn test_load_texture() {
         let (device, queue) = create_test_device_and_queue();
@@ -290,6 +294,7 @@ mod tests {
 
         texture_manager.load_texture("test_texture", path);
         assert!(texture_manager.get_texture_view("test_texture").is_some());
+        remove_mock_image(path);
     }
 
     #[test]
@@ -311,5 +316,8 @@ mod tests {
         texture_manager.update_texture("test_texture", new_path);
         // Check if the texture view is still valid after update
         assert!(texture_manager.get_texture_view("test_texture").is_some());
+        remove_mock_image(path);
+        remove_mock_image(new_path);
     }
+
 }

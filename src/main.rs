@@ -1,5 +1,7 @@
 mod textures;
 mod actors;
+mod equipment;
+mod story_tree;
 
 use common::dbl_buffer::DoubleBuffer;
 
