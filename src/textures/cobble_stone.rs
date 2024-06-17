@@ -1,8 +1,8 @@
-use std::cmp::min;
 use std::path::Path;
 use common::texture_manager::{TextureManager, TextureResource, create_texture_tile, concat_image_tiles, concat_image_rows};
 use crate::textures::cobble_stone::TextureError::ImageError;
 use thiserror::Error;
+use crate::textures::utils::update_color_based_on_light_direction;
 
 #[derive(Debug, Error)]
 pub enum TextureError {
@@ -33,37 +33,7 @@ fn create_cobble_stone_texture_tile(
     light_direction: LightDirection
 ) -> anyhow::Result<String> {
 
-    let mut color = base_color;
-    for i in 0..base_color.len() {
-        let x_pos = x_pos as u8;
-        let y_pos = y_pos as u8;
-        match light_direction {
-            LightDirection::Left => {
-                color[i] = min(255, base_color[i] - (x_pos * 10));
-            }
-            LightDirection::Right => {
-                color[i] = min(255, base_color[i] + (x_pos * 10));
-            }
-            LightDirection::Front => {
-                color[i] = min(255, base_color[i] - (y_pos * 10));
-            }
-            LightDirection::Back => {
-                color[i] = min(255, base_color[i] + (y_pos * 10));
-            }
-            LightDirection::LeftFront => {
-                color[i] = min(255, base_color[i] - (x_pos * 10) - (y_pos * 5));
-            }
-            LightDirection::RightFront => {
-                color[i] = min(255, base_color[i] + (x_pos * 10) - (y_pos * 5));
-            }
-            LightDirection::LeftBack => {
-                color[i] = min(255, base_color[i] - (x_pos * 10) + (y_pos * 5));
-            }
-            LightDirection::RightBack => {
-                color[i] = min(255, base_color[i] + (x_pos * 10) + (y_pos * 5));
-            }
-        }
-    }
+    let color = update_color_based_on_light_direction(light_direction, base_color, x_pos, y_pos);
     let alpha = if x_pos == 0 || x_pos == 7 || y_pos == 0 || y_pos == 3 {
         100
     } else {
