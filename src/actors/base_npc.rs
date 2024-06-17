@@ -1,13 +1,13 @@
 use crate::actors::models::{ComputedAttributeEnum, ComputedAttributes, ComputedAttributeValues, StatBlock, StatsEnum, StatValues};
 
 #[derive(Debug, Copy, Clone)]
-pub struct BaseEnemyStats {
+pub struct BaseNpcStats {
     pub level: u32,
     pub base_stats: StatBlock,
     pub computed_attributes: ComputedAttributes
 }
 
-impl StatValues for BaseEnemyStats {
+impl StatValues for BaseNpcStats {
     fn get_stat(&self, stat: StatsEnum) -> i32 {
         self.base_stats.get_stat(stat)
     }
@@ -23,7 +23,7 @@ impl StatValues for BaseEnemyStats {
     }
 }
 
-impl ComputedAttributeValues for BaseEnemyStats {
+impl ComputedAttributeValues for BaseNpcStats {
     fn get_computed_attribute(&self, attribute: ComputedAttributeEnum) -> i32 {
         self.computed_attributes.get_computed_attribute(attribute)
     }
@@ -39,10 +39,10 @@ impl ComputedAttributeValues for BaseEnemyStats {
     }
 }
 
-impl BaseEnemyStats {
+impl BaseNpcStats {
     pub fn new(level: u32, stats: Option<StatBlock>) -> Self {
         let base_stats = stats.unwrap_or_else(|| StatBlock::default());
-        BaseEnemyStats {
+        BaseNpcStats {
             level,
             base_stats,
             computed_attributes: ComputedAttributes::new(base_stats)
@@ -52,5 +52,15 @@ impl BaseEnemyStats {
     pub fn increase_stat(&mut self, stat: StatsEnum, value: i32) {
         self.base_stats.set_stat(stat, self.base_stats.get_stat(stat) + value);
         self.computed_attributes = ComputedAttributes::new(self.base_stats);
+    }
+}
+
+impl Default for BaseNpcStats {
+    fn default() -> Self {
+        Self {
+            level: 1,
+            base_stats: StatBlock::default(),
+            computed_attributes: ComputedAttributes::new(StatBlock::default())
+        }
     }
 }

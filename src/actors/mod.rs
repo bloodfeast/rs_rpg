@@ -1,3 +1,3 @@
 mod models;
-mod player;
-mod base_enemy;
+pub mod player;
+pub mod base_npc;

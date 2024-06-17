@@ -119,7 +119,8 @@ pub fn create_cobble_stone_brick(
         paths_in_row
             .iter()
             .for_each(|x|
-                std::fs::remove_file(x).unwrap()
+                std::fs::remove_file(x)
+                    .expect("Error removing file (create_cobble_stone_brick)")
             );
     }
 
