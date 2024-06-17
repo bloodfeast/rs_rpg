@@ -50,6 +50,12 @@ impl PlayerStats {
         }
     }
 
+    pub fn level_up(&mut self) {
+        self.level += 1;
+        self.set_passive_base_stat_increase();
+        self.computed_attributes = ComputedAttributes::new(self.base_stats);
+    }
+
     fn set_passive_base_stat_increase(&mut self) {
         match &self.level {
             level if level % 2 == 0 => {
@@ -62,24 +68,15 @@ impl PlayerStats {
         }
     }
 
-    pub fn level_up(&mut self, stat_picked: StatsEnum) {
-        self.level += 1;
-        let stat_value = self.base_stats.get_stat(stat_picked);
-        self.base_stats.set_stat(stat_picked, stat_value + 1);
-        self.set_passive_base_stat_increase();
-
-        self.computed_attributes = ComputedAttributes::new(self.base_stats);
-    }
-
-    pub fn get_level(&self) -> u32 {
-        self.level
-    }
-
     pub fn get_mut_computed_attributes(&mut self) -> &mut ComputedAttributes {
         &mut self.computed_attributes
     }
 
     pub fn get_stats(&self) -> (u32, Arc<Mutex<StatBlock>>, Arc<Mutex<ComputedAttributes>>) {
         (self.level, Arc::new(Mutex::new(self.base_stats)), Arc::new(Mutex::new(self.computed_attributes)))
+    }
+
+    pub fn get_mut_base_stats(&mut self) -> &mut StatBlock {
+        &mut self.base_stats
     }
 }
