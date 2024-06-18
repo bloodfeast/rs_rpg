@@ -2,6 +2,7 @@ mod textures;
 mod actors;
 mod equipment;
 mod story_tree;
+mod inventory;
 
 use common::dbl_buffer::DoubleBuffer;
 

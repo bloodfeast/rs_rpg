@@ -82,12 +82,12 @@ impl Default for StatBlock {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash,)]
 pub struct ComputedAttributes {
-    health: i32,
-    mana: i32,
-    stamina: i32,
-    physical_resistance: i32,
-    psychological_resistance: i32,
-    madness_limit: i32,
+    pub(crate) health: i32,
+    pub(crate) mana: i32,
+    pub(crate) stamina: i32,
+    pub(crate) physical_resistance: i32,
+    pub(crate) psychological_resistance: i32,
+    pub(crate) madness_limit: i32,
 }
 
 impl ComputedAttributes {
