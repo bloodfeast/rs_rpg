@@ -20,7 +20,7 @@ pub struct Viewport {
 }
 
 impl ViewportDesc {
-    pub async fn new(window: Arc<Window>, instance: &wgpu::Instance) -> Self {
+    pub async fn new(window: Arc<Window>, instance: &wgpu::Instance, buffer_size: usize) -> Self {
         let surface = instance.create_surface(window.clone());
 
         if !surface.is_err() {
@@ -42,7 +42,7 @@ impl ViewportDesc {
         let (device, queue) = adapter
             .request_device(
                 &wgpu::DeviceDescriptor {
-                    label: None,
+                    label: Some("Device"),
                     required_features: Features::default(),
                     required_limits: Default::default(),
                 },
@@ -57,7 +57,7 @@ impl ViewportDesc {
 
         surface.configure(&device, &config);
 
-        let frame_buffer = dbl_buffer::DoubleBuffer::new(2);
+        let frame_buffer = dbl_buffer::DoubleBuffer::new(buffer_size);
 
         Self {
             window,
