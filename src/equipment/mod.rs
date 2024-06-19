@@ -1,4 +1,4 @@
-mod weapons;
-mod passive_modifiers;
-mod armor;
-mod equipment_manager;
+pub mod weapons;
+pub mod passive_modifiers;
+pub mod armor;
+pub mod equipment_manager;

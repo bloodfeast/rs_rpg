@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 use crate::actors::models::{ComputedAttributeEnum, ComputedAttributes, ComputedAttributeValues, StatBlock, StatsEnum, StatValues};
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct PlayerStats {
     pub level: u32,
     pub base_stats: StatBlock,

@@ -3,6 +3,7 @@ mod actors;
 mod equipment;
 mod story_tree;
 mod inventory;
+mod state_management;
 
 use common::dbl_buffer::DoubleBuffer;
 
