@@ -238,6 +238,45 @@ pub fn concat_image_rows(images: Vec<DynamicImage>) -> DynamicImage {
     DynamicImage::ImageRgba8( v_concat(images.as_slice()) )
 }
 
+pub struct TextureTileSet {
+    tiles: Vec<DynamicImage>,
+}
+
+impl TextureTileSet {
+    pub fn new() -> Self {
+        Self { tiles: Vec::new() }
+    }
+
+    pub fn add_tile(&mut self, data: [[u8; 4]; 4]) {
+        let tile = create_texture_tile(2, 2, data);
+        self.tiles.push(tile);
+    }
+
+    pub fn get_tile(&self, index: usize) -> Option<&DynamicImage> {
+        self.tiles.get(index)
+    }
+}
+
+pub fn assemble_texture(tile_set: &TextureTileSet, width: u32, height: u32, layout: &[usize]) -> DynamicImage {
+    let tiles_x = width / 2;
+    let tiles_y = height / 2;
+
+    let mut rows = Vec::new();
+    for y in 0..tiles_y {
+        let mut row_images = Vec::new();
+        for x in 0..tiles_x {
+            let tile_index = layout[(y * tiles_x + x) as usize];
+            if let Some(tile) = tile_set.get_tile(tile_index) {
+                row_images.push(tile.clone());
+            }
+        }
+        let row = h_concat(&row_images);
+        rows.push(DynamicImage::ImageRgba8(row));
+    }
+
+    concat_image_rows(rows)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -137,7 +137,7 @@ impl Viewport {
         let mut encoder = self.desc.device.create_command_encoder(&command_encoder_descriptor);
 
         let color_attachment = wgpu::RenderPassColorAttachment {
-            view: self.desc.frame_buffer.get_active_buffer().lock().unwrap().as_ref().unwrap(),
+            view: &self.desc.frame_buffer.get_active_buffer().as_ref().lock().unwrap().as_ref().unwrap(),
             resolve_target: None,
             ops: wgpu::Operations {
                 load: wgpu::LoadOp::Clear(wgpu::Color {
@@ -152,7 +152,7 @@ impl Viewport {
 
         let render_pass_descriptor = wgpu::RenderPassDescriptor {
             label: Some("Render Pass"),
-            color_attachments: &[color_attachment],
+            color_attachments: &[Some(color_attachment)],
             depth_stencil_attachment: None,
             occlusion_query_set: None,
             timestamp_writes: None,
