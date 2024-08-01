@@ -27,7 +27,7 @@ impl ViewportDesc {
         let instance = wgpu::Instance::new(instance_descriptor);
         let surface = instance.create_surface(window.clone());
 
-        if !surface.is_err() {
+        if surface.is_err() {
             panic!("Surface is not supported");
         }
 
@@ -137,7 +137,7 @@ impl Viewport {
         let mut encoder = self.desc.device.create_command_encoder(&command_encoder_descriptor);
 
         let color_attachment = wgpu::RenderPassColorAttachment {
-            view: &self.desc.frame_buffer.get_active_buffer().as_ref().lock().unwrap().as_ref().unwrap(),
+            view: &self.desc.frame_buffer.get_active_buffer().lock().unwrap()[0],
             resolve_target: None,
             ops: wgpu::Operations {
                 load: wgpu::LoadOp::Clear(wgpu::Color {
@@ -163,5 +163,7 @@ impl Viewport {
         self.desc.queue.submit(std::iter::once(encoder.finish()));
 
         drawable.present();
+
+        Ok(())
     }
 }

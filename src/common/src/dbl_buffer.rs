@@ -17,12 +17,12 @@ impl<T> DoubleBuffer<T> {
         }
     }
 
-    pub fn get_active_buffer(&self) -> Arc<Mutex<Vec<T>>> {
-        self.buffers[self.active].clone()
+    pub fn get_active_buffer(&self) -> &Arc<Mutex<Vec<T>>> {
+        &self.buffers[self.active]
     }
 
-    pub fn get_inactive_buffer(&self) -> Arc<Mutex<Vec<T>>> {
-        self.buffers[1 - self.active].clone()
+    pub fn get_inactive_buffer(&self) -> &Arc<Mutex<Vec<T>>> {
+        &self.buffers[1 - self.active]
     }
 
     pub fn swap_buffers(&mut self) {
@@ -30,8 +30,7 @@ impl<T> DoubleBuffer<T> {
     }
 
     pub fn write_to_inactive_buffer(&self, data: Vec<T>) {
-        let binding = self.get_inactive_buffer();
-        let mut buffer = binding
+        let mut buffer = self.get_inactive_buffer()
             .lock()
             .expect("Failed to lock inactive buffer");
 
